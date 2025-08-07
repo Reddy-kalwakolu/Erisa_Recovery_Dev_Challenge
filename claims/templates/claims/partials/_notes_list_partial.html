@@ -1,0 +1,7 @@
+<ul>
+    {% for note in claim.notes.all %}
+        <li>{{ note.text }} - <em>by {{ note.user.username }} on {{ note.created_at|date:"Y-m-d" }}</em></li>
+    {% empty %}
+        <li>No notes for this claim yet.</li>
+    {% endfor %}
+</ul>

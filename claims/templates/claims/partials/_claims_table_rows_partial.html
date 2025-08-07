@@ -1,0 +1,16 @@
+<tbody id="claims-table-body">
+    {% for claim in page_obj %} <tr>
+        <td>{{ claim.claim_id }}</td>
+        <td>{{ claim.patient_name }}</td>
+        <td>{{ claim.status }}</td>
+        <td>{{ claim.insurer_name }}</td>
+        <td>
+            <button hx-get="{% url 'claims:claim-detail' claim.pk %}"
+                    hx-target="#detail-container"
+                    hx-swap="innerHTML">
+                View
+            </button>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

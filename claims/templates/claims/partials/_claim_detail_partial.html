@@ -1,0 +1,29 @@
+<div>
+    <div id="flag-button-container">
+        {% include "claims/partials/_flag_button_partial.html" %}
+    </div>
+
+    <h3>Details for Claim #{{ claim.claim_id }}</h3>
+    {% if claim.details %}
+        <p><strong>CPT Codes:</strong> {{ claim.details.cpt_codes }}</p>
+        <p><strong>Denial Reason:</strong> {{ claim.details.denial_reason|default:"N/A" }}</p>
+    {% else %}
+        <p>No details found for this claim.</p>
+    {% endif %}
+
+    <hr>
+
+    <h4>Notes</h4>
+    <div id="notes-list">
+        {% include "claims/partials/_notes_list_partial.html" %}
+    </div>
+
+    <form hx-post="{% url 'claims:add-note' claim.pk %}" 
+          hx-target="#notes-list" 
+          hx-swap="innerHTML">
+        {% csrf_token %}
+        <textarea name="note_text" rows="3" cols="40" placeholder="Add a new note..."></textarea>
+        <br>
+        <button type="submit">Save Note</button>
+    </form>
+</div>

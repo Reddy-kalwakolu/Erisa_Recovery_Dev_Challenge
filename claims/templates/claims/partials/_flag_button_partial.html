@@ -1,0 +1,14 @@
+<form hx-post="{% url 'claims:flag-claim' claim.pk %}" 
+      hx-target="#flag-button-container" 
+      hx-swap="innerHTML">
+
+    {% csrf_token %}
+
+    <button type="submit">
+        {% if claim.is_flagged %}
+            🚩 Unflag
+        {% else %}
+            🏳️ Flag for Review
+        {% endif %}
+    </button>
+</form>

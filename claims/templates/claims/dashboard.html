@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Dashboard</title>
+    <style>
+        body { font-family: system-ui, sans-serif; padding: 2em; color: #333; }
+        .stat-card {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 2em;
+            margin-bottom: 1em;
+            text-align: center;
+        }
+        .stat-value { font-size: 2.5em; font-weight: bold; color: #007bff; }
+        .stat-label { font-size: 1.2em; color: #555; }
+        a { color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Claims Dashboard</h1>
+    <p><a href="{% url 'claims:claim-list' %}">&larr; Back to Claims List</a></p>
+    <p><a href="{% url 'claims:upload-claims' %}">Upload New Data &rarr;</a></p>
+
+    <div class="stat-card">
+        <div class="stat-value">{{ total_flagged_claims }}</div>
+        <div class="stat-label">Total Flagged Claims</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-value">${{ average_underpayment|floatformat:2 }}</div>
+        <div class="stat-label">Average Underpayment Amount</div>
+    </div>
+
+</body>
+</html>
