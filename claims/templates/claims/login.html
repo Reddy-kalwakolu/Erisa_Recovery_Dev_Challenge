@@ -1,27 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <style>
-        body { font-family: system-ui, sans-serif; display: grid; place-content: center; min-height: 100vh; margin: 0; background-color: #f4f7f9; }
-        .login-card { background-color: white; padding: 2em; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 350px; }
-        form { display: flex; flex-direction: column; gap: 1em; }
-        input { padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
-        button { padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .errorlist { list-style: none; padding: 0; color: #d93025; font-size: 0.9em; }
-    </style>
-</head>
-<body>
-    <div class="login-card">
-        <h2>Login</h2>
-        <form method="post">
+{% extends 'claims/base.html' %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div 
+    class="max-w-lg mx-auto mt-8"
+    x-data="{ showPassword: false }"
+>
+    <div class="glass-card p-8 sm:p-10">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100/80 rounded-2xl mb-4">
+                <svg class="w-8 h-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800">Welcome Back</h1>
+            <p class="mt-2 text-sm text-gray-600">Sign in to continue to your dashboard.</p>
+        </div>
+
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            <div class="bg-green-100/80 border-l-4 border-green-500 text-green-800 p-4 rounded-r-lg" role="alert">
+                <p class="font-medium">{{ message }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if form.non_field_errors %}
+        <div class="mb-4 space-y-2">
+            {% for error in form.non_field_errors %}
+            <div class="bg-red-100/80 border-l-4 border-red-500 text-red-800 p-4 rounded-r-lg" role="alert">
+                <p class="font-medium">{{ error }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" class="space-y-6">
             {% csrf_token %}
-            
-            {{ form.as_p }}
-            
-            <button type="submit">Login</button>
+
+            {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    {{ field.label }}
+                    {% if field.field.required %}<span class="text-red-500">*</span>{% endif %}
+                </label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        {% if field.name == 'username' %}
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>
+                        {% elif field.name == 'password' %}
+                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>
+                        {% endif %}
+                    </span>
+                    <input
+                        {% if field.name == 'password' %}
+                            :type="showPassword ? 'text' : 'password'"
+                        {% else %}
+                            type="{{ field.field.widget.input_type }}"
+                        {% endif %}
+                        name="{{ field.name }}"
+                        id="{{ field.id_for_label }}"
+                        class="block w-full rounded-xl bg-white/60 border-0 py-3 pl-10 pr-10 text-gray-900 placeholder-gray-500 shadow-sm ring-1 ring-inset ring-gray-300/50 focus:ring-2 focus:ring-inset focus:ring-blue-500 transition {% if field.errors %} ring-red-500 focus:ring-red-500 {% endif %}"
+                    >
+                    {% if field.name == 'password' %}
+                        <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700">
+                            <svg x-show="!showPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.022 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" /></svg>
+                            <svg x-show="showPassword" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="display: none;"><path fill-rule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zM10 12a2 2 0 110-4 2 2 0 010 4z" clip-rule="evenodd" /><path d="M2.046 10a9.96 9.96 0 012.412-4.512l1.414 1.414a8.013 8.013 0 00-2.435 3.098A8.013 8.013 0 006.93 13.06l-1.414 1.414A9.96 9.96 0 012.046 10z" /></svg>
+                        </button>
+                    {% endif %}
+                </div>
+                {% for error in field.errors %}
+                    <p class="mt-1 text-xs text-red-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+
+            <div>
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
+                    Sign In
+                </button>
+            </div>
         </form>
+
+        <div class="mt-6 text-center text-sm">
+            <p class="text-gray-600">
+                Don't have an account?
+                <a href="{% url 'claims:register' %}" class="font-semibold text-blue-600 hover:text-blue-500 hover:underline">
+                    Register here
+                </a>
+            </p>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

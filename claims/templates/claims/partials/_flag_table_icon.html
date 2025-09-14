@@ -1,0 +1,9 @@
+{% comment %} claims/templates/claims/partials/_flag_table_icon.html {% endcomment %}
+<button class="text-gray-500 hover:text-red-500"
+        hx-post="{% url 'claims:flag-claim' claim.pk %}">
+    {% if claim.is_flagged_by_user %}
+        <svg class="w-5 h-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 01-.8-1.6L7.75 8l-2.55-3.4A1 1 0 013 4V3a3 3 0 010 3z" clip-rule="evenodd" /></svg>
+    {% else %}
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" /></svg>
+    {% endif %}
+</button>

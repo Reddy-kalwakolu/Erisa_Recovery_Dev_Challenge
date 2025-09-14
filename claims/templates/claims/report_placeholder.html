@@ -1,0 +1,17 @@
+{% comment %} c:\Users\Kcpre\OneDrive\Desktop\Erisa_Recovery_Dev_Challenge\claims\templates\claims\report_placeholder.html {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report for Claim {{ claim.claim_id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="p-10">
+    <h1 class="text-2xl font-bold">Claim Report</h1>
+    <p class="mt-4">This is a placeholder report for Claim ID: <strong>{{ claim.claim_id }}</strong></p>
+    <p>Patient: <strong>{{ claim.patient_name }}</strong></p>
+    <p>Status: <strong>{{ claim.status }}</strong></p>
+    <p class="mt-6"><button onclick="window.print()">Print this report</button></p>
+</body>
+</html>

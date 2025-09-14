@@ -1,38 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claims Dashboard</title>
-    <style>
-        body { font-family: system-ui, sans-serif; padding: 2em; color: #333; }
-        .stat-card {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 2em;
-            margin-bottom: 1em;
-            text-align: center;
-        }
-        .stat-value { font-size: 2.5em; font-weight: bold; color: #007bff; }
-        .stat-label { font-size: 1.2em; color: #555; }
-        a { color: #007bff; }
-    </style>
-</head>
-<body>
-    <h1>Claims Dashboard</h1>
-    <p><a href="{% url 'claims:claim-list' %}">&larr; Back to Claims List</a></p>
-    <p><a href="{% url 'claims:upload-claims' %}">Upload New Data &rarr;</a></p>
+{% extends 'claims/base.html' %}
 
-    <div class="stat-card">
-        <div class="stat-value">{{ total_flagged_claims }}</div>
-        <div class="stat-label">Total Flagged Claims</div>
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mx-auto relative z-10">
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Action Center</h1>
+        <p class="text-gray-600">Your overview of claims requiring attention and system trends.</p>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-value">${{ average_underpayment|floatformat:2 }}</div>
-        <div class="stat-label">Average Underpayment Amount</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="glass-card p-6"><p class="text-sm font-medium text-gray-600">Total Underpayment</p><p class="text-3xl font-bold text-gray-800 mt-1">${{ total_underpayment|default:0|floatformat:2 }}</p></div>
+        <div class="glass-card p-6"><p class="text-sm font-medium text-gray-600">Claims Awaiting Action</p><p class="text-3xl font-bold text-gray-800 mt-1">{{ claims_awaiting_action }}</p></div>
+        <div class="glass-card p-6"><p class="text-sm font-medium text-gray-600">My Flagged Claims</p><p class="text-3xl font-bold text-gray-800 mt-1">{{ my_flagged_claims_count }}</p></div>
+        <div class="glass-card p-6"><p class="text-sm font-medium text-gray-600">Average Underpayment</p><p class="text-3xl font-bold text-gray-800 mt-1">${{ average_underpayment|default:0|floatformat:2 }}</p></div>
     </div>
 
-</body>
-</html>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div class="lg:col-span-2 glass-card p-6" x-data="{ activeTab: 'denials' }">
+            <h2 class="font-bold text-lg mb-4">Claims Requiring Attention</h2>
+            <div class="border-b border-gray-200/60">
+                <nav class="-mb-px flex space-x-6">
+                    <button @click="activeTab = 'denials'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'denials', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'denials' }" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">High-Value Denials</button>
+                    <button @click="activeTab = 'aging'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'aging', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'aging' }" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">Aging Claims</button>
+                    <button @click="activeTab = 'flagged'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'flagged', 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': activeTab !== 'flagged' }" class="whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm">My Flagged Items</button>
+                </nav>
+            </div>
+            <div class="mt-2 text-sm">
+                <ul x-show="activeTab === 'denials'" class="divide-y divide-gray-200/60">
+                    {% for claim in high_value_denials %}<a href="{% url 'claims:claim-list' %}?show_details_for={{ claim.pk }}" class="block"><li class="py-3 flex justify-between items-center rounded-lg hover:bg-gray-500/10 transition-colors px-2 -mx-2"><div><p class="font-medium text-gray-800">{{ claim.patient_name }} ({{ claim.insurer_name }})</p><p class="text-gray-500">Claim ID: {{ claim.claim_id }}</p></div><p class="font-semibold text-red-600">${{ claim.underpayment|floatformat:2 }}</p></li></a>{% empty %} <li class="pt-4"><p class="text-gray-500">No high-value denials found.</p></li> {% endfor %}
+                </ul>
+                <ul x-show="activeTab === 'aging'" class="divide-y divide-gray-200/60">
+                     {% for claim in aging_claims %}<a href="{% url 'claims:claim-list' %}?show_details_for={{ claim.pk }}" class="block"><li class="py-3 flex justify-between items-center rounded-lg hover:bg-gray-500/10 transition-colors px-2 -mx-2"><div><p class="font-medium text-gray-800">{{ claim.patient_name }} ({{ claim.insurer_name }})</p><p class="text-gray-500">Claim ID: {{ claim.claim_id }}</p></div><p class="text-gray-500">Since {{ claim.discharge_date|date:"m/d/Y" }}</p></li></a>{% empty %} <li class="pt-4"><p class="text-gray-500">No aging claims found.</p></li> {% endfor %}
+                </ul>
+                <ul x-show="activeTab === 'flagged'" class="divide-y divide-gray-200/60">
+                    {% for claim in my_flagged_items %}<a href="{% url 'claims:claim-list' %}?show_details_for={{ claim.pk }}" class="block"><li class="py-3 flex justify-between items-center rounded-lg hover:bg-gray-500/10 transition-colors px-2 -mx-2"><div><p class="font-medium text-gray-800">{{ claim.patient_name }}</p><p class="text-gray-500">Claim ID: {{ claim.claim_id }}</p></div><span class="status-badge status-{{ claim.status|lower|slugify }}">{{ claim.get_status_display }}</span></li></a>{% empty %} <li class="pt-4"><p class="text-gray-500">You have not flagged any claims.</p></li> {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="lg:col-span-1 space-y-6">
+            <div class="glass-card p-6">
+                <h2 class="font-bold text-lg mb-4">Top Denial Reasons</h2>
+                <ul class="space-y-3 text-sm">
+                    {% for reason in top_denial_reasons %}<li class="flex justify-between items-center"><span class="text-gray-700 truncate pr-4">{{ reason.denial_reason }}</span><span class="font-bold text-gray-800 flex-shrink-0">{{ reason.count }}</span></li>{% empty %}<li><p class="text-gray-500">No denial reasons recorded yet.</p></li>{% endfor %}
+                </ul>
+            </div>
+            <div class="glass-card p-6">
+                <h2 class="font-bold text-lg mb-4">Recent Activity</h2>
+                <ul class="space-y-4">
+                    {% for item in recent_activity %}<a href="{% url 'claims:claim-list' %}?show_details_for={{ item.claim.pk }}" class="block"><li class="flex items-center gap-3 text-sm rounded-lg hover:bg-gray-500/10 transition-colors p-2 -m-2"><div class="w-8 h-8 flex-shrink-0 bg-gray-200/60 rounded-full flex items-center justify-center font-bold text-gray-600">{{ item.user.username|slice:":1"|upper }}</div><p class="text-gray-600"><span class="font-bold text-gray-800">{{ item.user.username|default:'System' }}</span> updated Claim {{ item.claim.claim_id }}.</p></li></a>{% empty %}<li><p class="text-gray-500">No recent activity.</p></li>{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,16 +1,39 @@
-<tbody id="claims-table-body">
-    {% for claim in page_obj %} <tr>
-        <td>{{ claim.claim_id }}</td>
-        <td>{{ claim.patient_name }}</td>
-        <td>{{ claim.status }}</td>
-        <td>{{ claim.insurer_name }}</td>
-        <td>
-            <button hx-get="{% url 'claims:claim-detail' claim.pk %}"
-                    hx-target="#detail-container"
-                    hx-swap="innerHTML">
+{% comment %} claims/templates/claims/partials/_claims_table_rows_partial.html {% endcomment %}
+<tbody class="divide-y divide-gray-200/60">
+    {% for claim in page_obj %}
+    <tr class="hover:bg-gray-50/40 transition-colors duration-200">
+        <td class="p-4 font-medium text-blue-600">{{ claim.claim_id }}</td>
+        <td class="p-4">{{ claim.patient_name }}</td>
+        <td class="p-4">${{ claim.billed_amount|floatformat:2 }}</td>
+        <td class="p-4 font-medium {% if claim.paid_amount > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+            ${{ claim.paid_amount|floatformat:2 }}
+        </td>
+        <td class="p-4">
+            <span id="status-badge-table-{{ claim.pk }}">
+                {% include "claims/partials/_status_badge_partial.html" %}
+            </span>
+        </td>
+        <td class="p-4">{{ claim.insurer_name }}</td>
+        <td class="p-4">{{ claim.discharge_date|date:"m/d/Y" }}</td>
+        <td class="p-4 flex items-center gap-4">
+            <button
+                class="flex items-center gap-1 text-gray-700 hover:text-blue-600"
+                hx-get="{% url 'claims:claim-detail' claim.pk %}"
+                hx-target="#claim-details-card"
+                hx-swap="innerHTML"
+                @click="detailsVisible = true"
+            >
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 View
             </button>
+            <span id="table-flag-icon-{{ claim.pk }}">
+            {% include "claims/partials/_flag_table_icon.html" %}
+            </span>
         </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="8" class="text-center p-8 text-gray-500">No claims found.</td>
     </tr>
     {% endfor %}
 </tbody>

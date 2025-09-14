@@ -1,0 +1,53 @@
+<!-- C:\Users\Kcpre\OneDrive\Desktop\Erisa_Recovery_Dev_Challenge - Copy\claims\templates\claims\partials\_claim_details_card.html -->
+
+{% if claim %}
+<div class="glass-card p-6 h-full">
+    <div class="flex justify-between items-start mb-6">
+        <h2 class="text-xl font-bold flex items-center gap-3">
+            <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+            Claim Details - {{ claim.claim_id }}
+        </h2>
+        <span id="status-badge-detail-{{ claim.pk }}">
+            {% include "claims/partials/_status_badge_partial.html" %}
+        </span>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div>
+            <p class="text-sm text-gray-600">Patient:</p>
+            <p class="text-lg font-semibold">{{ claim.patient_name }}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Discharge Date:</p>
+            <p class="text-lg font-semibold">{{ claim.discharge_date|date:"m/d/Y" }}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Billed Amount:</p>
+            <p class="text-2xl font-bold">${{ claim.billed_amount|floatformat:2 }}</p>
+        </div>
+        <div>
+            <p class="text-sm text-gray-600">Paid Amount:</p>
+            <p class="text-2xl font-bold text-green-600">${{ claim.paid_amount|floatformat:2 }}</p>
+        </div>
+        <div class="sm:col-span-2">
+            <p class="text-sm text-gray-600">Insurer:</p>
+            <p class="text-lg font-semibold">{{ claim.insurer_name }}</p>
+        </div>
+        {% if cpt_codes_list %}
+            <div class="sm:col-span-2">
+                <p class="text-sm text-gray-600 mb-2">CPT Codes:</p>
+                <div class="flex gap-2 flex-wrap">
+                    {% for code in cpt_codes_list %}
+                        <span class="bg-gray-200/60 text-gray-700 text-xs font-mono py-1 px-3 rounded-md">{{ code }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        {% if claim.details.denial_reason %}
+            <div class="sm:col-span-2 bg-red-500/10 border-l-4 border-red-500 p-4 rounded-r-lg">
+                <p class="text-sm text-red-700 font-semibold">Denial Reason:</p>
+                <p class="text-red-600">{{ claim.details.denial_reason }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

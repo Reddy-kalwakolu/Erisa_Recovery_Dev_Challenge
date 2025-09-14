@@ -1,7 +1,6 @@
-<ul>
-    {% for note in claim.notes.all %}
-        <li>{{ note.text }} - <em>by {{ note.user.username }} on {{ note.created_at|date:"Y-m-d" }}</em></li>
-    {% empty %}
-        <li>No notes for this claim yet.</li>
-    {% endfor %}
-</ul>
+{% comment %} claims/templates/claims/partials/_notes_list_partial.html {% endcomment %}
+{% for note in visible_notes %}
+    {% include "claims/partials/_note_item_partial.html" %}
+{% empty %}
+    <p class="text-sm text-gray-500">No notes for this claim yet.</p>
+{% endfor %}

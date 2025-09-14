@@ -1,0 +1,66 @@
+{% extends 'claims/base.html' %}
+
+{% block title %}Application Features{% endblock %}
+
+{% block content %}
+<div class="relative z-10">
+
+    <div class="text-center pb-12">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-800 tracking-tight">
+            Application Feature Guide
+        </h1>
+        <p class="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+            Welcome, {{ user.username }}. Here is a quick overview of the tools available in the ERISA Recovery Portal.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div class="glass-card flex-col-card p-6">
+            <div class="flex-grow">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100/80 rounded-xl mb-4">
+                    <svg class="w-7 h-7 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" /></svg>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">Action Center Dashboard</h2>
+                <p class="mt-2 text-sm text-gray-600">Your central hub for at-a-glance KPIs and prioritized work queues like high-value denials and aging claims.</p>
+            </div>
+            <a href="{% url 'claims:dashboard' %}" class="mt-6 inline-block bg-white/50 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-white/80 transition text-center">Go to Dashboard</a>
+        </div>
+
+        <div class="glass-card flex-col-card p-6">
+            <div class="flex-grow">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100/80 rounded-xl mb-4">
+                    <svg class="w-7 h-7 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" /></svg>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">Interactive Claims List</h2>
+                <p class="mt-2 text-sm text-gray-600">A complete list of all claims with powerful search and filtering. View claim details instantly without leaving the page.</p>
+            </div>
+            <a href="{% url 'claims:claim-list' %}" class="mt-6 inline-block bg-white/50 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-white/80 transition text-center">View All Claims</a>
+        </div>
+
+        <div class="glass-card flex-col-card p-6">
+            <div class="flex-grow">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100/80 rounded-xl mb-4">
+                    <svg class="w-7 h-7 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.056 3 12c0 4.556 4.03 8.25 9 8.25z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 12.75c-1.125 0-2.25-.338-3.166-.94a4.33 4.33 0 01-1.684-2.292c-.227-.63.111-1.312.74-1.538a4.33 4.33 0 014.212 0c.63.227.968.908.74 1.538a4.33 4.33 0 01-1.684 2.292A6.716 6.716 0 0012 12.75z" /></svg>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">Collaboration Tools</h2>
+                <p class="mt-2 text-sm text-gray-600">Flag claims for review and add public or private notes to any claim, creating a complete audit trail for your team.</p>
+            </div>
+            <a href="{% url 'claims:claim-list' %}" class="mt-6 inline-block bg-white/50 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-white/80 transition text-center">Start Collaborating</a>
+        </div>
+
+        <div class="glass-card flex-col-card p-6">
+            <div class="flex-grow">
+                <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100/80 rounded-xl mb-4">
+                    <svg class="w-7 h-7 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25z" /></svg>
+                </div>
+                <h2 class="text-xl font-bold text-gray-800">Data Management</h2>
+                <p class="mt-2 text-sm text-gray-600">Easily upload new claims data. Choose to append new records to the existing dataset or overwrite it completely.</p>
+            </div>
+            <a href="{% url 'claims:upload-claims' %}" class="mt-6 inline-block bg-white/50 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-white/80 transition text-center">Upload Data</a>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

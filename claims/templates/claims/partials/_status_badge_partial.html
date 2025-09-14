@@ -1,0 +1,13 @@
+{% comment %} claims/templates/claims/partials/_status_badge_partial.html {% endcomment %}
+
+{% with status_lower=claim.status|lower %}
+    {% if "denied" in status_lower %}
+        <span class="status-badge status-denied">{{ claim.status }}</span>
+    {% elif "review" in status_lower %}
+        <span class="status-badge status-under-review">{{ claim.status }}</span>
+    {% elif "paid" in status_lower %}
+        <span class="status-badge status-paid">{{ claim.status }}</span>
+    {% else %}
+        <span class="inline-flex items-center py-1 px-3 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">{{ claim.status }}</span>
+    {% endif %}
+{% endwith %}

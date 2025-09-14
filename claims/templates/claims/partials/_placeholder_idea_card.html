@@ -1,0 +1,13 @@
+{% comment %} claims/templates/claims/partials/_placeholder_idea_card.html {% endcomment %}
+{% if claim %}
+<div class="glass-card p-6 h-full">
+    <h2 class="text-xl font-bold flex items-center gap-3 mb-4">
+        <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.923 2.296a2.25 2.25 0 013.154 0l2.306 2.307a2.25 2.25 0 010 3.153L6.154 17.03a2.25 2.25 0 01-3.152 0l-2.307-2.307a2.25 2.25 0 010-3.153L9.923 2.296z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 9.464L18.75 6.25m-2.25 2.25l-2.25 2.25m-6.75 6.75L9 21.75m2.25-2.25l2.25-2.25" /></svg>
+        Underpayment Analysis
+    </h2>
+    <div class="flex-grow flex flex-col justify-center items-center text-center">
+        <p class="text-gray-700 font-bold text-3xl">${{ underpayment_amount|floatformat:2 }}</p>
+        <p class="text-sm text-gray-500">potential underpayment</p>
+    </div>
+</div>
+{% endif %}

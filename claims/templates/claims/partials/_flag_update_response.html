@@ -1,0 +1,11 @@
+{% comment %} claims/templates/claims/partials/_flag_update_response.html {% endcomment %}
+
+{% comment %} This block targets the flag icon in the table row for the specific claim. {% endcomment %}
+<div id="table-flag-icon-{{ claim.pk }}" hx-swap-oob="true">
+    {% include "claims/partials/_flag_table_icon.html" %}
+</div>
+
+{% comment %} This block targets the flag action item in the Quick Actions card for the specific claim. {% endcomment %}
+<div id="flag-action-item-{{ claim.pk }}" hx-swap-oob="true">
+    {% include "claims/partials/_flag_action_item.html" %}
+</div>

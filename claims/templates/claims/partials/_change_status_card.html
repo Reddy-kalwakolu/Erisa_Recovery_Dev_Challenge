@@ -1,0 +1,34 @@
+<!-- C:\Users\Kcpre\OneDrive\Desktop\Erisa_Recovery_Dev_Challenge - Copy\claims\templates\claims\partials\_change_status_card.html -->
+
+{% if claim %}
+<div class="glass-card p-6 h-full">
+    <h2 class="text-xl font-bold flex items-center gap-3 mb-4">
+        <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991 0l-3.182-3.182a8.25 8.25 0 00-11.667 0l-3.181 3.182" /></svg>
+        Change Status
+    </h2>
+    <form hx-post="{% url 'claims:change-claim-status' claim.pk %}" class="space-y-3 flex-grow flex flex-col">
+        {% csrf_token %}
+        <div class="flex-grow space-y-3">
+            <div x-data="{ open: false, selectedValue: '{{ claim.status }}', selectedLabel: '{{ claim.get_status_display }}' }" class="relative">
+                <input type="hidden" name="status" :value="selectedValue">
+                <button type="button" @click="open = !open" class="relative w-full cursor-default rounded-md bg-white/60 py-2 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300/80 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm sm:leading-6">
+                    <span class="block truncate" x-text="selectedLabel"></span>
+                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"><svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a.75.75 0 01.53.22l3.5 3.5a.75.75 0 01-1.06 1.06L10 4.81 6.53 8.28a.75.75 0 01-1.06-1.06l3.5-3.5A.75.75 0 0110 3zm-3.72 9.53a.75.75 0 011.06 0L10 15.19l2.47-2.47a.75.75 0 111.06 1.06l-3.5 3.5a.75.75 0 01-1.06 0l-3.5-3.5a.75.75 0 010-1.06z" clip-rule="evenodd" /></svg></span>
+                </button>
+                <ul x-show="open" @click.away="open = false" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm" x-cloak>
+                    {% for value, display in status_choices %}
+                        <li @click="selectedValue = '{{ value }}'; selectedLabel = '{{ display }}'; open = false" class="text-gray-900 relative cursor-default select-none py-2 pl-3 pr-9 hover:bg-blue-500 hover:text-white">
+                            <span class="block truncate" :class="{ 'font-semibold': selectedValue === '{{ value }}' }">{{ display }}</span>
+                            <span x-show="selectedValue === '{{ value }}'" class="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600"><svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg></span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div>
+                <textarea name="comment" rows="2" placeholder="Add an optional comment..." class="w-full bg-white/50 border border-gray-300/50 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500 text-sm"></textarea>
+            </div>
+        </div>
+        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition text-sm">Update Status</button>
+    </form>
+</div>
+{% endif %}

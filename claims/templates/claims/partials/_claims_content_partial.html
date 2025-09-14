@@ -1,36 +1,48 @@
-<div id="claims-content">
-    <table>
-        <thead>
-            <tr>
-                <th>Claim ID</th>
-                <th>Patient Name</th>
-                <th>Status</th>
-                <th>Insurer</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        {% include "claims/partials/_claims_table_rows_partial.html" %}
-    </table>
+{% comment %} claims/templates/claims/partials/_claims_content_partial.html {% endcomment %}
+<div id="claims-content-wrapper">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left whitespace-nowrap">
+            <thead class="text-sm text-gray-600 uppercase border-b-2 border-gray-200/80">
+                <tr>
+                    <th class="p-4">Claim ID</th>
+                    <th class="p-4">Patient</th>
+                    <th class="p-4">Billed</th>
+                    <th class="p-4">Paid</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Insurer</th>
+                    <th class="p-4">Discharge Date</th>
+                    <th class="p-4">Actions</th>
+                </tr>
+            </thead>
 
-    <div class="pagination">
-        <span class="page-step">
+            {% include "claims/partials/_claims_table_rows_partial.html" %}
+
+        </table>
+    </div>
+
+    <div class="mt-6 flex justify-between items-center text-sm text-gray-600">
+        <span>
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+        <div class="flex gap-2">
+            {# ======================================= #}
+            {# START OF CHANGES #}
             {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}"
-                   hx-get="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}"
-                   hx-target="#claims-content"
-                   hx-swap="innerHTML">&laquo; Previous</a>
+                <a href="?page={{ page_obj.previous_page_number }}&{{ query_params }}"
+                   hx-get="?page={{ page_obj.previous_page_number }}&{{ query_params }}"
+                   hx-target="#claims-content-wrapper"
+                   hx-swap="innerHTML"
+                   class="py-1 px-3 bg-white/50 border border-gray-300/50 rounded-lg hover:bg-white/70 transition">&laquo; Previous</a>
             {% endif %}
-        </span>
-        <span class="page-current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
-        <span class="page-step">
             {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}"
-                   hx-get="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}"
-                   hx-target="#claims-content"
-                   hx-swap="innerHTML">Next &raquo;</a>
+                <a href="?page={{ page_obj.next_page_number }}&{{ query_params }}"
+                   hx-get="?page={{ page_obj.next_page_number }}&{{ query_params }}"
+                   hx-target="#claims-content-wrapper"
+                   hx-swap="innerHTML"
+                   class="py-1 px-3 bg-white/50 border border-gray-300/50 rounded-lg hover:bg-white/70 transition">Next &raquo;</a>
             {% endif %}
-        </span>
+            {# END OF CHANGES #}
+            {# ======================================= #}
+        </div>
     </div>
 </div>

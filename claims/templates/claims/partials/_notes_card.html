@@ -1,0 +1,26 @@
+<!-- C:\Users\Kcpre\OneDrive\Desktop\Erisa_Recovery_Dev_Challenge - Copy\claims\templates\claims\partials\_notes_card.html -->
+
+{% if claim %}
+<div class="glass-card p-6 h-full">
+    <h2 class="text-xl font-bold flex items-center gap-3 mb-4">
+        <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m2.25 2.25H15M3.75 21h16.5a1.5 1.5 0 001.5-1.5v-16.5a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 4.5v16.5a1.5 1.5 0 001.5 1.5z" /></svg>
+        Notes & Annotations
+    </h2>
+    <div id="notes-list-{{ claim.pk }}" class="space-y-4 mb-4 flex-grow overflow-y-auto min-h-0">
+        {% include "claims/partials/_notes_list_partial.html" %}
+    </div>
+    <form x-data @keydown.enter.ctrl.prevent="$el.requestSubmit()" @keydown.enter.meta.prevent="$el.requestSubmit()"
+        hx-post="{% url 'claims:add-note' claim.pk %}"
+        hx-target="#notes-list-{{ claim.pk }}"
+        hx-swap="innerHTML"
+        class="notes-form">
+        {% csrf_token %}
+        <textarea id="note-textarea-{{ claim.pk }}" name="note_text" placeholder="Add a new note... (Ctrl+Enter to submit)" class="w-full bg-white/50 border border-gray-300/50 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500 text-sm" rows="3"></textarea>
+        <div class="mt-2 flex items-center">
+            <input type="checkbox" name="is_public" id="is_public_{{ claim.pk }}" class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+            <label for="is_public_{{ claim.pk }}" class="ml-2 block text-sm text-gray-700">Make this note visible to colleagues</label>
+        </div>
+        <button type="submit" class="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition">Save Note</button>
+    </form>
+</div>
+{% endif %}

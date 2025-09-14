@@ -1,0 +1,21 @@
+{% comment %}claims/templates/claims/partials/_status_update_response.html {% endcomment %}
+
+{# This block updates the status badge in the main table row #}
+<div id="status-badge-table-{{ claim.pk }}" hx-swap-oob="true">
+    {% include "claims/partials/_status_badge_partial.html" %}
+</div>
+
+{# This block updates the status badge in the details card #}
+<div id="status-badge-detail-{{ claim.pk }}" hx-swap-oob="true">
+    {% include "claims/partials/_status_badge_partial.html" %}
+</div>
+
+{# This block updates the Change Status card to refresh the dropdown #}
+<div id="change-status-card" hx-swap-oob="true">
+    {% include "claims/partials/_change_status_card.html" %}
+</div>
+
+{# This block updates the entire Status History card #}
+<div id="status-history-card" hx-swap-oob="true">
+    {% include "claims/partials/_status_history_card.html" %}
+</div>

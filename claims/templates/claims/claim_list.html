@@ -1,127 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Claims Management</title>
+{% extends 'claims/base.html' %}
+
+{% block content %}
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 relative z-10" x-data="{ detailsVisible: false }">
     
-    <style>
-        body { font-family: system-ui, sans-serif; margin: 0; background-color: #f4f7f9; }
-        a { color: #007bff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .top-bar { 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #ffffff; 
-            padding: 1em 2em; 
-            border-bottom: 1px solid #ddd; 
-        }
-        .top-bar h1 { margin: 0; font-size: 1.5em; }
-        .top-bar-links { display: flex; align-items: center; gap: 1.5em; }
-        .main-container {
-            display: flex;
-            gap: 2em;
-            padding: 2em;
-        }
-        .claims-list-panel {
-            flex: 2; /* Takes up ~66% of the space */
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 2em;
-        }
-        .details-panel {
-            flex: 1; /* Takes up ~33% of the space */
-        }
-        #detail-container {
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 1.5em;
-            min-height: 200px;
-        }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border-bottom: 1px solid #ddd; padding: 12px; text-align: left; }
-        thead th { background-color: #f8f9fa; }
-        tbody tr:hover { background-color: #f1f5f8; }
-        input[type="search"] {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 1em;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .pagination {
-            margin-top: 1.5em;
-            text-align: center;
-        }
-        .pagination .page-current {
-            color: #555;
-            padding: 8px 12px;
-            font-weight: bold;
-        }
-        .logout-button {
-            background: none;
-            border: none;
-            color: #007bff;
-            text-decoration: none;
-            cursor: pointer;
-            padding: 0;
-            font-size: 1em;
-            font-family: inherit;
-        }
-        .logout-button:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="top-bar">
-        <h1>Claims Management System</h1>
-        <div class="top-bar-links">
-            <a href="{% url 'claims:dashboard' %}">View Dashboard</a>
-            
-            {% if user.is_authenticated %}
-                <span>Hello, {{ user.username }}</span>
-                
-                <form method="post" action="{% url 'claims:logout' %}" style="margin: 0;">
-                    {% csrf_token %}
-                    <button type="submit" class="logout-button">Logout</button>
-                </form>
-
-            {% else %}
-                <a href="{% url 'claims:login' %}">Login</a>
-            {% endif %}
+    <div x-data="{ showFilter: false }">
+        <div class="flex items-stretch gap-4 mb-4">
+            <div class="relative flex-grow">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <svg class="w-5 h-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+                </div>
+                <input type="search"
+                    name="q"
+                    placeholder="Search patient, status, insurer..."
+                    class="w-full glass-card rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
+                    hx-get="{% url 'claims:claim-list' %}"
+                    hx-trigger="keyup changed delay:500ms, search"
+                    hx-target="#claims-content-wrapper"
+                    hx-swap="innerHTML">
+            </div>
+            <button @click="showFilter = !showFilter" class="glass-card rounded-xl flex-shrink-0 flex flex-row items-center gap-2 py-2 px-3 hover:bg-white/20 transition text-gray-700">
+                <svg class="w-5 h-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.572a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" /></svg>
+                <span x-text="showFilter ? 'Close' : 'Filter'">Filter</span>
+            </button>
+        </div>
+        
+        <div x-show="showFilter" x-cloak 
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" 
+             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4" 
+             class="mb-4">
+            <form id="advanced-filter-form" hx-get="{% url 'claims:claim-list' %}" hx-target="#claims-content-wrapper" hx-swap="innerHTML" class="w-full">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <input type="text" name="patient_name" placeholder="Patient Name" class="glass-card rounded-xl w-full bg-transparent p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none border-0 text-sm">
+                    <input type="text" name="status" placeholder="Status" class="glass-card rounded-xl w-full bg-transparent p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none border-0 text-sm">
+                    <input type="text" name="insurer_name" placeholder="Insurer" class="glass-card rounded-xl w-full bg-transparent p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none border-0 text-sm">
+                    <button type="button" @click="$el.closest('form').reset(); htmx.trigger('#advanced-filter-form', 'submit')" class="glass-card w-full h-full text-gray-600 hover:text-gray-900 hover:bg-white/20 transition flex items-center justify-center font-medium text-sm p-3 rounded-xl">
+                        Clear
+                    </button>
+                    <button type="submit" class="glass-card bg-blue-500 text-white hover:bg-blue-600 transition flex items-center justify-center font-semibold text-sm p-3 rounded-xl">
+                        Apply Filters
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <div class="main-container">
+    <div id="claims-content-wrapper" class="glass-card p-6 sm:p-8">
+        {% include "claims/partials/_claims_content_partial.html" %}
+    </div>
 
-        <div class="claims-list-panel">
-            <input type="search"
-                   name="q"
-                   placeholder="Search by status or insurer..."
-                   hx-get="{% url 'claims:claim-list' %}"
-                   hx-trigger="keyup changed delay:500ms"
-                   hx-target="#claims-content"
-                   hx-swap="innerHTML">
-            
-            {% include "claims/partials/_claims_content_partial.html" %}
-            
-        </div>
-
-        <div class="details-panel">
-            <div id="detail-container">
-                <p>Select a claim to view its details.</p>
+    <div x-show="detailsVisible" x-cloak class="mt-8">
+        <div class="flex flex-col lg:flex-row lg:gap-8">
+            <div class="w-full lg:w-[40%] space-y-8 mb-8 lg:mb-0">
+                
+                <div 
+                    id="claim-details-card" 
+                    class="h-[32rem]"
+                    @htmx:after-on-load.window="if($event.detail.target.id === 'claim-details-card') { $el.scrollIntoView({ behavior: 'smooth', block: 'start' }) }"
+                ></div>
+                <div id="status-history-card" class="h-[18rem]"></div>
+            </div>
+            <div class="w-full lg:w-[25%] space-y-8 mb-8 lg:mb-0">
+                <div id="analyse-agent-card" class="h-[15rem]"></div>
+                <div id="actions-card" class="h-[15rem]"></div>
+                <div id="change-status-card" class="h-[18rem]"></div>
+            </div>
+            <div class="w-full lg:w-[35%] space-y-8">
+                <div id="notes-card" class="h-[32rem]"></div>
+                <div id="placeholder-idea-card" class="h-[18rem]"></div>
             </div>
         </div>
-
     </div>
-
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}
