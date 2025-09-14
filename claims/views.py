@@ -8,21 +8,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.http import HttpResponse, Http404, HttpResponseForbidden
-from django.urls import reverse_lazy
-from django.contrib.auth.views import LoginView
+from django.urls import reverse_lazy, reverse
 from django.views.generic.edit import CreateView
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from datetime import timedelta
+import urllib
 
 from .forms import CustomUserCreationForm
 from .models import Claim, ClaimDetail, Note, ClaimHistory, Flag
-from .utils import process_claim_data
-
-# def home_view(request):
-#     """Renders the public-facing home page for all users."""
-#     return render(request, 'claims/home.html')
-
+from .utils import process_claim_data, parse_data_from_stream
 
 def home_view(request):
     """
@@ -34,7 +29,6 @@ def home_view(request):
     else:
         return redirect('claims:login')
 
-# ... (rest of your views.py file) ...
 
 class RegisterView(CreateView):
     form_class = CustomUserCreationForm
@@ -83,7 +77,7 @@ def claim_list_view(request):
         claims_list = claims_list.filter(status__icontains=status_query)
     if insurer_query:
         claims_list = claims_list.filter(insurer_name__icontains=insurer_query)
-    
+
     claims_list = claims_list.order_by('-discharge_date')
 
     paginator = Paginator(claims_list, 5)
@@ -122,7 +116,9 @@ def claim_detail_view(request, pk):
         cpt_codes_list = [code.strip() for code in claim.details.cpt_codes.split(',')]
 
     underpayment_amount = claim.billed_amount - claim.paid_amount
+    
     is_flagged_by_user = claim.flags.filter(user=request.user).exists()
+    claim.is_flagged_by_user = is_flagged_by_user
 
     context = {
         'claim': claim,
@@ -130,7 +126,6 @@ def claim_detail_view(request, pk):
         'status_choices': Claim.STATUS_CHOICES,
         'cpt_codes_list': cpt_codes_list,
         'underpayment_amount': underpayment_amount,
-        'is_flagged_by_user': is_flagged_by_user,
     }
 
     details_html = render_to_string('claims/partials/_claim_details_card.html', context, request=request)
@@ -211,14 +206,14 @@ def change_claim_status_view(request, pk):
                 comment=comment
             )
 
-    claim = get_object_or_404(Claim.objects.prefetch_related('history__user'), pk=pk)
-    underpayment_amount = claim.billed_amount - claim.paid_amount
-    context = {
-        'claim': claim,
-        'status_choices': Claim.STATUS_CHOICES,
-        'underpayment_amount': underpayment_amount,
-    }
-    return render(request, 'claims/partials/_status_update_response.html', context)
+        claim.refresh_from_db()
+        underpayment_amount = claim.billed_amount - claim.paid_amount
+        context = {
+            'claim': claim,
+            'status_choices': Claim.STATUS_CHOICES,
+            'underpayment_amount': underpayment_amount,
+        }
+        return render(request, 'claims/partials/_status_update_response.html', context)
 
 @login_required
 def generate_report_view(request, pk):
@@ -227,7 +222,6 @@ def generate_report_view(request, pk):
 
 @login_required
 def dashboard_view(request):
-    # --- KPI Bar Calculations ---
     total_underpayment = Claim.objects.aggregate(
         total=Sum(F('billed_amount') - F('paid_amount'))
     )['total']
@@ -242,16 +236,14 @@ def dashboard_view(request):
         avg=Avg(F('billed_amount') - F('paid_amount'))
     )['avg']
 
-    # --- Action Queues Data ---
     high_value_denials = Claim.objects.filter(status=Claim.STATUS_DENIED).annotate(
         underpayment=F('billed_amount') - F('paid_amount')
     ).order_by('-underpayment')[:5]
 
     aging_claims = Claim.objects.filter(status=Claim.STATUS_UNDER_REVIEW).order_by('discharge_date')[:5]
-    
+
     my_flagged_items = Claim.objects.filter(flags__user=request.user).distinct()[:5]
 
-    # --- System Insights Data ---
     top_denial_reasons = ClaimDetail.objects.filter(denial_reason__isnull=False).exclude(denial_reason__exact='').values(
         'denial_reason'
     ).annotate(
@@ -273,7 +265,9 @@ def dashboard_view(request):
     }
     return render(request, 'claims/dashboard.html', context)
 
-
+# ======================================= #
+# START OF MODIFIED SECTION
+# ======================================= #
 @login_required
 def upload_claims_view(request):
     if request.method == 'POST':
@@ -286,27 +280,76 @@ def upload_claims_view(request):
             return redirect('claims:upload-claims')
 
         try:
-            claims_data = json.loads(claims_file.read().decode('utf-8'))
-            details_data = json.loads(details_file.read().decode('utf-8'))
+            claims_data = parse_data_from_stream(claims_file, claims_file.name)
+            details_data = parse_data_from_stream(details_file, details_file.name)
 
             claims_created, claims_updated, details_created, details_updated = process_claim_data(
                 claims_data, details_data, mode
             )
-
-            messages.success(request,
-                f'Upload successful! Claims: {claims_created} created, {claims_updated} updated. '
-                f'Details: {details_created} created, {details_updated} updated.'
+            
+            # Create a more detailed success message for the toast notification
+            success_message = (
+                f'Success! {claims_created} claims created, {claims_updated} updated. '
+                f'{details_created} details created, {details_updated} updated.'
             )
-            return redirect('claims:dashboard')
+            
+            # URL encode the message to safely pass it as a query parameter
+            encoded_message = urllib.parse.quote(success_message)
+            redirect_url = f"{reverse('claims:dashboard')}?upload_success=true&message={encoded_message}"
+            
+            # For HTMX requests, we send a special header to trigger a client-side redirect.
+            if request.htmx:
+                response = HttpResponse(status=204) # 204 No Content
+                response['HX-Redirect'] = redirect_url
+                return response
+            
+            # For standard requests, add a Django message and redirect
+            messages.success(request, success_message)
+            return redirect(redirect_url)
 
-        except json.JSONDecodeError:
-            messages.error(request, 'Upload failed. One of the files is not valid JSON.')
-            return redirect('claims:upload-claims')
-        except KeyError as e:
-            messages.error(request, f'Upload failed. A required key is missing from the data: {e}')
-            return redirect('claims:upload-claims')
-        except Exception as e:
-            messages.error(request, f'An unexpected error occurred: {e}')
+        except (ValueError, KeyError, Exception) as e:
+            error_message = f'An unexpected error occurred: {e}'
+            if isinstance(e, ValueError):
+                # Provide more specific guidance for common errors
+                error_message = f'Upload failed due to a data format issue: {e}. Please ensure your file matches the template.'
+            elif isinstance(e, KeyError):
+                error_message = f"Upload failed. A required column is missing from your data: '{e}'. Please check your file against the template."
+
+            messages.error(request, error_message)
+
             return redirect('claims:upload-claims')
 
     return render(request, 'claims/upload_claims.html')
+
+@login_required
+def download_template_view(request, file_type):
+    """
+    Serves a sample CSV or JSON file to the user as a template.
+    """
+    file_type = file_type.lower()
+    if file_type == 'csv':
+        content = "id,patient_name,billed_amount,paid_amount,status,insurer_name,discharge_date\n30001,Jane Doe,5000.00,450.50,Denied,Example Insurer,2025-01-15"
+        content_type = 'text/csv'
+        file_name = 'claims_template.csv'
+    elif file_type == 'json':
+        content = json.dumps([{
+            "id": 30001,
+            "patient_name": "Jane Doe",
+            "billed_amount": 5000.00,
+            "paid_amount": 450.50,
+            "status": "Denied",
+            "insurer_name": "Example Insurer",
+            "discharge_date": "2025-01-15"
+        }], indent=2)
+        content_type = 'application/json'
+        file_name = 'claims_template.json'
+    else:
+        raise Http404("File type not supported")
+
+    response = HttpResponse(content, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    return response
+
+# ======================================= #
+# END OF MODIFIED SECTION
+# ======================================= #

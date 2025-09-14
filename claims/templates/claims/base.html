@@ -2,276 +2,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}ERISA Recovery{% endblock %}</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}ERISA Recovery{% endblock %}</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+<script src="https://unpkg.com/htmx.org@1.9.12"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .glass-card { background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); position: relative; z-index: 1; transform: translateZ(0); }
-        .flex-col-card { display: flex; flex-direction: column; }
-        .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
-        .bubble { position: absolute; bottom: -200px; border-radius: 50%; animation: floatUp 30s infinite ease-in-out; transform-origin: center center; }
-        @keyframes floatUp { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.7; } 50% { transform: translateY(-60vh) translateX(calc(var(--x-drift) * 1px)) rotate(180deg); } 100% { transform: translateY(-120vh) translateX(calc(var(--x-drift) * 2px)) rotate(360deg); opacity: 0; } }
-        .status-badge { display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
-        .status-denied { background-color: rgba(239, 68, 68, 0.1); color: #dc2626; }
-        .status-under-review, .status-under-review { background-color: rgba(234, 179, 8, 0.1); color: #ca8a04; }
-        .status-paid { background-color: rgba(34, 197, 94, 0.1); color: #16a34a; }
-        .status-appealed { background-color: rgba(99, 102, 241, 0.1); color: #4f46e5; }
-        [x-cloak] { display: none !important; }
-        .tour-highlight { box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5); z-index: 9998; }
-    </style>
+<style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass-card { background: rgba(255, 255, 255, 0.35); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.05); position: relative; z-index: 1; transform: translateZ(0); }
+    .flex-col-card { display: flex; flex-direction: column; }
+    .bubbles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; overflow: hidden; }
+    .bubble { position: absolute; bottom: -200px; border-radius: 50%; animation: floatUp 30s infinite ease-in-out; transform-origin: center center; }
+    @keyframes floatUp { 0% { transform: translateY(0) translateX(0) rotate(0deg); opacity: 0.7; } 50% { transform: translateY(-60vh) translateX(calc(var(--x-drift) * 1px)) rotate(180deg);
+    } 100% { transform: translateY(-120vh) translateX(calc(var(--x-drift) * 2px)) rotate(360deg); opacity: 0; } }
+    .status-badge { display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .status-denied { background-color: rgba(239, 68, 68, 0.1); color: #dc2626; }
+    .status-under-review { background-color: rgba(234, 179, 8, 0.1); color: #ca8a04; }
+    .status-paid { background-color: rgba(34, 197, 94, 0.1); color: #16a34a; }
+    .status-appealed { background-color: rgba(99, 102, 241, 0.1); color: #4f46e5; }
+    [x-cloak] { display: none !important; }
+</style>
 </head>
 <body class="bg-gray-100 text-gray-900" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
 
 <div class="bubbles" id="bubble-container"></div>
 
-<div x-data="tour()" x-show="isActive" x-cloak class="fixed inset-0 z-[9997]">
-    <div x-ref="highlight" class="absolute bg-transparent rounded-lg transition-all duration-300 pointer-events-none tour-highlight"></div>
-    <div x-ref="tooltip" class="absolute w-80 bg-white rounded-xl shadow-2xl p-4 z-[9999] transition-all duration-300">
-        <p class="text-sm text-gray-700" x-text="getCurrentStep().text"></p>
-        <div class="mt-4 flex justify-between items-center">
-            <button @click="end()" class="text-xs font-semibold text-gray-500 hover:text-gray-800">End Tour</button>
-            <div>
-                <button @click="previous()" x-show="currentStep > 0" class="text-sm font-medium text-gray-600 hover:text-gray-900 py-1 px-3 rounded-lg bg-gray-100 hover:bg-gray-200">Previous</button>
-                <button @click="next()" class="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 py-1 px-3 rounded-lg">
-                    <span x-text="isLastStep() ? 'Finish' : 'Next'"></span>
+<div class="container mx-auto p-4 sm:p-6 lg:p-8 relative z-10">
+<header x-data="{ mobileMenuOpen: false, userMenuOpen: false }" class="relative z-30">
+    <div class="glass-card px-4 sm:px-6">
+        <nav class="flex items-center justify-between h-16">
+            <a href="{% url 'claims:home' %}" class="flex-shrink-0 flex items-center gap-2">
+                <svg class="h-8 w-8 text-blue-600" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="currentColor"/></svg>
+                <span class="font-extrabold text-lg">ERISA</span><span class="font-medium text-lg">RECOVERY</span>
+            </a>
+            <div class="hidden sm:flex sm:items-center sm:ml-6 space-x-2">
+                <a href="{% url 'claims:home' %}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'home' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Home</a>
+                <a href="{% url 'claims:claim-list' %}" id="nav-claims-list" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'claim-list' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Claims</a>
+                <a href="{% url 'claims:dashboard' %}" id="nav-dashboard" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Dashboard</a>
+                <a href="{% url 'claims:upload-claims' %}" id="nav-upload" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'upload-claims' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Upload</a>
+            </div>
+            <div class="hidden sm:flex sm:items-center sm:ml-6">
+                {% if user.is_authenticated %}
+                <div class="relative">
+                    <button @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600">
+                        <span class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full font-bold text-blue-600">{{ user.username|slice:":1"|upper }}</span>
+                        <span>Hello, {{ user.username }}</span>
+                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </button>
+                    <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-cloak x-transition class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none py-1">
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <svg class="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'claims:login' %}" class="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg shadow-sm transition-colors">Sign In</a>
+                {% endif %}
+            </div>
+            <div class="-mr-2 flex items-center sm:hidden">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center rounded-md p-2 text-gray-500 hover:bg-white/30 hover:text-gray-800 focus:outline-none">
+                    <svg x-show="!mobileMenuOpen" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                    <svg x-show="mobileMenuOpen" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
+        </nav>
+    </div>
+    <div x-show="mobileMenuOpen" x-cloak class="sm:hidden glass-card mt-2">
+        <div class="space-y-1 px-2 pt-2 pb-3">
         </div>
     </div>
-</div>
+</header>
 
-<div class="container mx-auto p-4 sm:p-6 lg:p-8 relative z-10" x-data>
-    <header x-data="{ mobileMenuOpen: false, userMenuOpen: false }" class="relative z-30">
-        <div class="glass-card px-4 sm:px-6">
-            <nav class="flex items-center justify-between h-16">
-                <a href="{% url 'claims:home' %}" class="flex-shrink-0 flex items-center gap-2">
-                    <svg class="h-8 w-8 text-blue-600" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="currentColor"/></svg>
-                    <span class="font-extrabold text-lg">ERISA</span><span class="font-medium text-lg">RECOVERY</span>
-                </a>
-                <div class="hidden sm:flex sm:items-center sm:ml-6 space-x-2">
-                    <a href="{% url 'claims:home' %}" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'home' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Home</a>
-                    <a href="{% url 'claims:claim-list' %}" id="nav-claims-list" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'claim-list' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Claims</a>
-                    <a href="{% url 'claims:dashboard' %}" id="nav-dashboard" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Dashboard</a>
-                    <a href="{% url 'claims:upload-claims' %}" id="nav-upload" class="px-3 py-2 rounded-md text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'upload-claims' %}bg-white/50 text-gray-900{% else %}text-gray-600 hover:bg-white/30 hover:text-gray-800{% endif %}">Upload</a>
-                </div>
-                <div class="hidden sm:flex sm:items-center sm:ml-6">
-                    {% if user.is_authenticated %}
-                        <div class="relative">
-                            <button @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-blue-600">
-                                <span class="w-8 h-8 flex items-center justify-center bg-blue-100 rounded-full font-bold text-blue-600">{{ user.username|slice:":1"|upper }}</span>
-                                <span>Hello, {{ user.username }}</span>
-                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
-                            </button>
-                            <div x-show="userMenuOpen" @click.away="userMenuOpen = false" x-cloak x-transition class="origin-top-right absolute right-0 mt-2 w-48 rounded-xl shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none py-1">
-                                <button @click="$dispatch('start-tour')" class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <svg class="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.456-2.456L12.75 18l1.178-.398a3.375 3.375 0 002.456-2.456L16.5 14.25l.398 1.178a3.375 3.375 0 002.456 2.456l1.178.398-1.178.398a3.375 3.375 0 00-2.456 2.456z" /></svg>
-                                    Start Tour
-                                </button>
-                                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <svg class="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" /></svg>
-                                    Sign Out
-                                </a>
-                            </div>
-                        </div>
-                    {% else %}
-                        <a href="{% url 'claims:login' %}" class="text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg shadow-sm transition-colors">Sign In</a>
-                    {% endif %}
-                </div>
-                <div class="-mr-2 flex items-center sm:hidden">
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" type="button" class="inline-flex items-center justify-center rounded-md p-2 text-gray-500 hover:bg-white/30 hover:text-gray-800 focus:outline-none">
-                        <svg x-show="!mobileMenuOpen" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
-                        <svg x-show="mobileMenuOpen" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
-            </nav>
-        </div>
-        <div x-show="mobileMenuOpen" x-cloak class="sm:hidden glass-card mt-2">
-            <div class="space-y-1 px-2 pt-2 pb-3">
-                 <button @click="$dispatch('start-tour')" class="w-full text-left block rounded-md px-3 py-2 text-base font-medium text-gray-600 hover:bg-white/30 hover:text-gray-800">Start Tour</button>
-            </div>
-        </div>
-    </header>
-
-    <main class="mt-8" @start-tour.window="$store.tour.start()">
-        {% block content %}{% endblock %}
-    </main>
+<main class="mt-8">
+    {% block content %}{% endblock %}
+</main>
 </div>
 
 <div class="container mx-auto p-4 sm:p-6 lg:p-8 relative z-10 mt-12">
-    <footer class="glass-card p-6"><div class="flex flex-col sm:flex-row items-center justify-between"><div class="text-center sm:text-left mb-4 sm:mb-0"><p class="text-sm text-gray-700 font-medium">&copy; {% now "Y" %} ERISA Recovery. All Rights Reserved.</p><p class="text-xs text-gray-500">Your partner in claim analysis and recovery.</p></div><div class="flex space-x-4 text-sm font-medium text-gray-600"><a href="{% url 'claims:home' %}" class="hover:text-blue-600 transition-colors">Home</a><a href="{% url 'claims:claim-list' %}" class="hover:text-blue-600 transition-colors">Claims</a></div></div></footer>
+    <footer class="glass-card p-6"><div class="flex flex-col sm:flex-row items-center justify-between"><div class="text-center sm:text-left mb-4 sm:mb-0"><p class="text-sm text-gray-700 font-medium">&copy;
+    {% now "Y" %} ERISA Recovery. All Rights Reserved.</p><p class="text-xs text-gray-500">Your partner in claim analysis and recovery.</p></div><div class="flex space-x-4 text-sm font-medium text-gray-600"><a href="{% url 'claims:home' %}" class="hover:text-blue-600 transition-colors">Home</a><a href="{% url 'claims:claim-list' %}" class="hover:text-blue-600 transition-colors">Claims</a></div></div></footer>
 </div>
 
 {% if user.is_authenticated %}<form id="logout-form" method="post" action="{% url 'claims:logout' %}" style="display: none;">{% csrf_token %}</form>{% endif %}
 
 <script>
-// Bubble script
-document.addEventListener('DOMContentLoaded', function() {
-    // ... (bubble script remains the same)
-});
+    // This single script tag contains all necessary page-level javascript.
 
-// Note form script
-document.body.addEventListener('htmx:afterOnLoad', function(event) {
-    if (event.detail.elt.classList.contains('notes-form')) { if (event.detail.successful) { event.detail.elt.reset(); } }
-});
-
-// ========== Interactive Tour Logic ==========
-document.addEventListener('alpine:init', () => {
-    Alpine.store('tour', {
-        isActive: false,
-        currentStep: 0,
-        
-        // The full script for our tour
-        steps: [
-            // Dashboard Tour
-            { page: '{% url "claims:dashboard" %}', target: '#dashboard-header', text: "Welcome to the Action Center! This tour will guide you through the main features. Click 'Next' to begin.", position: 'bottom' },
-            { page: '{% url "claims:dashboard" %}', target: '#kpi-bar', text: "This is your KPI bar. It provides a real-time summary of the most important metrics.", position: 'bottom' },
-            { page: '{% url "claims:dashboard" %}', target: '#action-queues', text: "This is your primary work area. It contains prioritized lists of claims that may need your attention.", position: 'right' },
-            { page: '{% url "claims:dashboard" %}', target: '#insights-column', text: "This area helps you spot trends and provides a feed of the latest activity from your team.", position: 'left' },
-            { page: '{% url "claims:dashboard" %}', target: '#nav-claims-list', text: "Now, let's explore the main claims list. Click here to continue the tour.", position: 'bottom' },
-            // Claims List Page Tour
-            { page: '{% url "claims:claim-list" %}', target: '#search-bar', text: "You are now on the main Claims List page. Use this to quickly find any claim.", position: 'bottom' },
-            { page: '{% url "claims:claim-list" %}', target: '#claims-table-body', text: "This table displays all claims. The key feature is the 'View' button.", position: 'bottom' },
-            { page: '{% url "claims:claim-list" %}', target: '.claim-view-btn:first-of-type', text: "Clicking 'View' opens the detail panel on this page without a full reload. Try it now to continue the tour!", position: 'right' },
-            // Claim Detail Panel Tour (will appear on the claims list page)
-            { page: '{% url "claims:claim-list" %}', target: '#claim-details-card', text: "This is the HTMX-powered Detail Panel. All information for this claim is organized into these cards.", position: 'bottom' },
-            { page: '{% url "claims:claim-list" %}', target: '#analyse-agent-card', text: "This is the Erisa Agent. In the future, you'll be able to get AI-powered insights for this claim.", position: 'top' },
-            { page: '{% url "claims:claim-list" %}', target: '#notes-card', text: "Here, you can add, edit, and view public or private notes for team collaboration.", position: 'top' },
-            { page: '{% url "claims:claim-list" %}', target: '#nav-upload', text: "Finally, let's see how data gets into the system. Click here.", position: 'bottom' },
-            // Upload Page Tour
-            { page: '{% url "claims:upload-claims" %}', target: '#upload-form', text: "On this page, you can upload new claim and detail files in JSON format.", position: 'bottom' },
-            { page: '{% url "claims:upload-claims" %}', target: '#upload-mode-selector', text: "You can choose to Append data to the existing records or Overwrite the entire database.", position: 'bottom' },
-            { page: '{% url "claims:upload-claims" %}', target: '#upload-submit-btn', text: "That's it! You've seen the core features. Click 'Finish' to end the tour.", position: 'top' },
-        ],
-
-        init() {
-            this.isActive = localStorage.getItem('tourActive') === 'true';
-            this.currentStep = parseInt(localStorage.getItem('tourStep') || '0');
-            if (this.isActive) {
-                // Use setTimeout to ensure the page has rendered before positioning
-                setTimeout(() => this.positionElements(), 100);
+    // Bubble script
+    document.addEventListener('DOMContentLoaded', function() {
+        const bubbleContainer = document.getElementById('bubble-container');
+        if (bubbleContainer) {
+            const numberOfBubbles = 8;
+            const gradients = [
+                'radial-gradient(circle at 30% 30%, #a7f3d0, #6ee7b7 90%)', 
+                'radial-gradient(circle at 70% 70%, #bfdbfe, #93c5fd 90%)',
+                'radial-gradient(circle at 60% 30%, #ddd6fe, #c4b5fd 90%)', 
+                'radial-gradient(circle at 30% 70%, #fef3c7, #fde68a 90%)'
+            ];
+            for (let i = 0; i < numberOfBubbles; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                const size = Math.random() * 120 + 30;
+                const left = Math.random() * 100;
+                const animationDuration = Math.random() * 20 + 15;
+                const animationDelay = Math.random() * 20;
+                const xDrift = (Math.random() - 0.5) * 100;
+                const gradient = gradients[Math.floor(Math.random() * gradients.length)];
+                
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${left}%`;
+                bubble.style.animationDuration = `${animationDuration}s`;
+                bubble.style.animationDelay = `${animationDelay}s`;
+                bubble.style.backgroundImage = gradient;
+                bubble.style.setProperty('--x-drift', xDrift);
+                
+                bubbleContainer.appendChild(bubble);
             }
-        },
-
-        start() {
-            this.isActive = true;
-            this.currentStep = 0;
-            localStorage.setItem('tourActive', 'true');
-            localStorage.setItem('tourStep', '0');
-            const firstStep = this.steps[0];
-            if (window.location.pathname !== firstStep.page) {
-                window.location.href = firstStep.page;
-            } else {
-                this.positionElements();
-            }
-        },
-
-        end() {
-            this.isActive = false;
-            localStorage.removeItem('tourActive');
-            localStorage.removeItem('tourStep');
-        },
-        
-        next() {
-            if (this.currentStep < this.steps.length - 1) {
-                this.currentStep++;
-                localStorage.setItem('tourStep', this.currentStep);
-                const nextStep = this.getCurrentStep();
-                if (window.location.pathname !== nextStep.page) {
-                    window.location.href = nextStep.page;
-                } else {
-                    this.positionElements();
-                }
-            } else {
-                this.end();
-            }
-        },
-
-        previous() {
-            if (this.currentStep > 0) {
-                this.currentStep--;
-                localStorage.setItem('tourStep', this.currentStep);
-                 const prevStep = this.getCurrentStep();
-                if (window.location.pathname !== prevStep.page) {
-                    window.location.href = prevStep.page;
-                } else {
-                    this.positionElements();
-                }
-            }
-        },
-
-        getCurrentStep() {
-            return this.steps[this.currentStep];
-        },
-        
-        isLastStep() {
-            return this.currentStep === this.steps.length - 1;
-        },
-
-        positionElements() {
-            if (!this.isActive) return;
-            
-            const step = this.getCurrentStep();
-            const targetElement = document.querySelector(step.target);
-            
-            if (!targetElement) {
-                console.warn(`Tour target not found: ${step.target}`);
-                return;
-            }
-
-            const rect = targetElement.getBoundingClientRect();
-            const highlight = this.$refs.highlight;
-            const tooltip = this.$refs.tooltip;
-            
-            highlight.style.width = `${rect.width + 16}px`;
-            highlight.style.height = `${rect.height + 16}px`;
-            highlight.style.top = `${rect.top - 8 + window.scrollY}px`;
-            highlight.style.left = `${rect.left - 8 + window.scrollX}px`;
-
-            // Position tooltip based on step.position
-            let tooltipTop = 0;
-            let tooltipLeft = 0;
-            const offset = 12;
-
-            switch(step.position) {
-                case 'bottom':
-                    tooltipTop = rect.bottom + offset;
-                    tooltipLeft = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2);
-                    break;
-                case 'top':
-                    tooltipTop = rect.top - tooltip.offsetHeight - offset;
-                    tooltipLeft = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2);
-                    break;
-                case 'left':
-                    tooltipTop = rect.top + (rect.height / 2) - (tooltip.offsetHeight / 2);
-                    tooltipLeft = rect.left - tooltip.offsetWidth - offset;
-                    break;
-                case 'right':
-                    tooltipTop = rect.top + (rect.height / 2) - (tooltip.offsetHeight / 2);
-                    tooltipLeft = rect.right + offset;
-                    break;
-            }
-            
-            // Boundary checks
-            if (tooltipLeft < 10) tooltipLeft = 10;
-            if ((tooltipLeft + tooltip.offsetWidth) > window.innerWidth - 10) {
-                tooltipLeft = window.innerWidth - tooltip.offsetWidth - 10;
-            }
-
-            tooltip.style.top = `${tooltipTop + window.scrollY}px`;
-            tooltip.style.left = `${tooltipLeft + window.scrollX}px`;
         }
     });
-});
+
+    // Note form script
+    document.body.addEventListener('htmx:afterOnLoad', function(event) {
+        if (event.detail.elt.classList.contains('notes-form')) {
+            if (event.detail.successful) {
+                event.detail.elt.reset();
+            }
+        }
+    });
 </script>
 
 </body>

@@ -1,0 +1,19 @@
+# .dockerignore
+
+.dockerignore
+.git
+.gitignore
+README.md
+Dockerfile
+
+# Python virtual environment
+venv/
+
+# Python caches
+__pycache__/
+*.pyc
+
+# Local database file
+*.sqlite3
+
+

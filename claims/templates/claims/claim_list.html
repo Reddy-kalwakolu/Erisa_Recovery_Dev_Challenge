@@ -1,44 +1,29 @@
 {% extends 'claims/base.html' %}
 
 {% block content %}
-<div class="container mx-auto p-4 sm:p-6 lg:p-8 relative z-10" x-data="{ detailsVisible: false }">
-    
+<div 
+    class="container mx-auto p-4 sm:p-6 lg:p-8 relative z-10" 
+    x-data="{ detailsVisible: {{ show_details_for_id|yesno:'true,false' }} }"
+>
     <div x-data="{ showFilter: false }">
         <div class="flex items-stretch gap-4 mb-4">
             <div class="relative flex-grow">
-                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg class="w-5 h-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-                </div>
-                <input type="search"
-                    name="q"
-                    placeholder="Search patient, status, insurer..."
-                    class="w-full glass-card rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500"
-                    hx-get="{% url 'claims:claim-list' %}"
-                    hx-trigger="keyup changed delay:500ms, search"
-                    hx-target="#claims-content-wrapper"
-                    hx-swap="innerHTML">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><svg class="w-5 h-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg></div>
+                <input type="search" name="q" placeholder="Search patient, status, insurer..." class="w-full glass-card rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-400 transition placeholder-gray-500" hx-get="{% url 'claims:claim-list' %}" hx-trigger="keyup changed delay:500ms, search" hx-target="#claims-content-wrapper" hx-swap="innerHTML">
             </div>
             <button @click="showFilter = !showFilter" class="glass-card rounded-xl flex-shrink-0 flex flex-row items-center gap-2 py-2 px-3 hover:bg-white/20 transition text-gray-700">
                 <svg class="w-5 h-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.572a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" /></svg>
                 <span x-text="showFilter ? 'Close' : 'Filter'">Filter</span>
             </button>
         </div>
-        
-        <div x-show="showFilter" x-cloak 
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" 
-             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4" 
-             class="mb-4">
+        <div x-show="showFilter" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-4" class="mb-4">
             <form id="advanced-filter-form" hx-get="{% url 'claims:claim-list' %}" hx-target="#claims-content-wrapper" hx-swap="innerHTML" class="w-full">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                     <input type="text" name="patient_name" placeholder="Patient Name" class="glass-card rounded-xl w-full bg-transparent p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none border-0 text-sm">
                     <input type="text" name="status" placeholder="Status" class="glass-card rounded-xl w-full bg-transparent p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none border-0 text-sm">
                     <input type="text" name="insurer_name" placeholder="Insurer" class="glass-card rounded-xl w-full bg-transparent p-3 focus:ring-2 focus:ring-blue-400 focus:outline-none border-0 text-sm">
-                    <button type="button" @click="$el.closest('form').reset(); htmx.trigger('#advanced-filter-form', 'submit')" class="glass-card w-full h-full text-gray-600 hover:text-gray-900 hover:bg-white/20 transition flex items-center justify-center font-medium text-sm p-3 rounded-xl">
-                        Clear
-                    </button>
-                    <button type="submit" class="glass-card bg-blue-500 text-white hover:bg-blue-600 transition flex items-center justify-center font-semibold text-sm p-3 rounded-xl">
-                        Apply Filters
-                    </button>
+                    <button type="button" @click="$el.closest('form').reset(); htmx.trigger('#advanced-filter-form', 'submit')" class="glass-card w-full h-full text-gray-600 hover:text-gray-900 hover:bg-white/20 transition flex items-center justify-center font-medium text-sm p-3 rounded-xl">Clear</button>
+                    <button type="submit" class="glass-card bg-blue-500 text-white hover:bg-blue-600 transition flex items-center justify-center font-semibold text-sm p-3 rounded-xl">Apply Filters</button>
                 </div>
             </form>
         </div>
@@ -51,10 +36,13 @@
     <div x-show="detailsVisible" x-cloak class="mt-8">
         <div class="flex flex-col lg:flex-row lg:gap-8">
             <div class="w-full lg:w-[40%] space-y-8 mb-8 lg:mb-0">
-                
                 <div 
                     id="claim-details-card" 
-                    class="h-[32rem]"
+                    class="h-[32rem]" 
+                    {% if show_details_for_id %}
+                        hx-get="{% url 'claims:claim-detail' pk=show_details_for_id %}"
+                        hx-trigger="load"
+                    {% endif %}
                     @htmx:after-on-load.window="if($event.detail.target.id === 'claim-details-card') { $el.scrollIntoView({ behavior: 'smooth', block: 'start' }) }"
                 ></div>
                 <div id="status-history-card" class="h-[18rem]"></div>

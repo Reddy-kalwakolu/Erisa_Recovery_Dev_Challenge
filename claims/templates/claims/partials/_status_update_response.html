@@ -1,4 +1,4 @@
-{% comment %}claims/templates/claims/partials/_status_update_response.html {% endcomment %}
+{# claims/templates/claims/partials/_status_update_response.html #}
 
 {# This block updates the status badge in the main table row #}
 <div id="status-badge-table-{{ claim.pk }}" hx-swap-oob="true">
@@ -11,11 +11,12 @@
 </div>
 
 {# This block updates the Change Status card to refresh the dropdown #}
-<div id="change-status-card" hx-swap-oob="true">
+<div id="change-status-card" hx-swap-oob="true" class="h-[18rem]">
     {% include "claims/partials/_change_status_card.html" %}
 </div>
 
-{# This block updates the entire Status History card #}
-<div id="status-history-card" hx-swap-oob="true">
+{# --- CORRECTED BLOCK --- #}
+{# This block now includes the fixed height and flex classes to prevent expansion #}
+<div id="status-history-card" hx-swap-oob="true" class="h-[18rem]">
     {% include "claims/partials/_status_history_card.html" %}
 </div>

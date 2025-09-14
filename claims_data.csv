@@ -1,0 +1,3 @@
+id,patient_name,billed_amount,paid_amount,status,insurer_name,discharge_date
+30001,Virginia Rhodes,639787.37,16001.57,Denied,United Healthcare,2022-12-19
+30002,Andrew Hunt,223987.53,164960.37,Under Review,Self Funded Inc.,2022-01-30
