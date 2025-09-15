@@ -25,8 +25,6 @@
             Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
         <div class="flex gap-2">
-            {# ======================================= #}
-            {# START OF CHANGES #}
             {% if page_obj.has_previous %}
                 <a href="?page={{ page_obj.previous_page_number }}&{{ query_params }}"
                    hx-get="?page={{ page_obj.previous_page_number }}&{{ query_params }}"
@@ -41,8 +39,7 @@
                    hx-swap="innerHTML"
                    class="py-1 px-3 bg-white/50 border border-gray-300/50 rounded-lg hover:bg-white/70 transition">Next &raquo;</a>
             {% endif %}
-            {# END OF CHANGES #}
-            {# ======================================= #}
+            
         </div>
     </div>
 </div>

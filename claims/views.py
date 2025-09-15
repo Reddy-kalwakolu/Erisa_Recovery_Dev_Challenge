@@ -265,9 +265,7 @@ def dashboard_view(request):
     }
     return render(request, 'claims/dashboard.html', context)
 
-# ======================================= #
-# START OF MODIFIED SECTION
-# ======================================= #
+
 @login_required
 def upload_claims_view(request):
     if request.method == 'POST':
@@ -287,7 +285,7 @@ def upload_claims_view(request):
                 claims_data, details_data, mode
             )
             
-            # Create a more detailed success message for the toast notification
+            # Detailed success message for the toast notification
             success_message = (
                 f'Success! {claims_created} claims created, {claims_updated} updated. '
                 f'{details_created} details created, {details_updated} updated.'
@@ -297,7 +295,7 @@ def upload_claims_view(request):
             encoded_message = urllib.parse.quote(success_message)
             redirect_url = f"{reverse('claims:dashboard')}?upload_success=true&message={encoded_message}"
             
-            # For HTMX requests, we send a special header to trigger a client-side redirect.
+            # For HTMX requests, send a special header to trigger a client-side redirect.
             if request.htmx:
                 response = HttpResponse(status=204) # 204 No Content
                 response['HX-Redirect'] = redirect_url
@@ -349,7 +347,3 @@ def download_template_view(request, file_type):
     response = HttpResponse(content, content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename="{file_name}"'
     return response
-
-# ======================================= #
-# END OF MODIFIED SECTION
-# ======================================= #

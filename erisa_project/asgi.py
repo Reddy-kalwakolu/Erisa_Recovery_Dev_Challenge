@@ -1,4 +1,4 @@
-# c:\Users\Kcpre\OneDrive\Desktop\Erisa_Recovery_Dev_Challenge\erisa_project\asgi.py
+# Erisa_Recovery_Dev_Challenge\erisa_project\asgi.py
 """
 ASGI config for erisa_project project.
 

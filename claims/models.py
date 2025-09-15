@@ -1,4 +1,4 @@
-# C:\Users\Kcpre\OneDrive\Desktop\Erisa_Recovery_Dev_Challenge - Copy\claims\models.py
+# claims\models.py
 
 from django.db import models
 from django.contrib.auth.models import User
@@ -32,11 +32,6 @@ class Claim(models.Model):
     insurer_name = models.CharField(max_length=255, db_index=True)
     discharge_date = models.DateField()
 
-    # ======================================= #
-    # START OF FIX
-    # The old `is_flagged` boolean field has been removed.
-    # The flagging logic is now handled by the new `Flag` model below.
-    # ======================================= #
 
     def __str__(self):
         return f"Claim {self.claim_id} - {self.patient_name}"
@@ -76,9 +71,8 @@ class ClaimHistory(models.Model):
     class Meta:
         ordering = ['-timestamp']
 
-# ======================================= #
-# START OF FIX
-# New model to handle user-specific flagging
+
+# Model to handle user-specific flagging
 class Flag(models.Model):
     """Represents a user flagging a claim for review."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flags')
@@ -92,5 +86,3 @@ class Flag(models.Model):
 
     def __str__(self):
         return f"{self.user.username} flagged Claim {self.claim.claim_id}"
-# END OF FIX
-# ======================================= #

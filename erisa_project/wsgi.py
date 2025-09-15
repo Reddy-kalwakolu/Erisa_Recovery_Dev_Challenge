@@ -1,4 +1,4 @@
-# C:\Users\Kcpre\OneDrive\Desktop\Erisa_Recovery_Dev_Challenge\erisa_project\wsgi.py
+# Erisa_Recovery_Dev_Challenge\erisa_project\wsgi.py
 """
 WSGI config for erisa_project project.
 

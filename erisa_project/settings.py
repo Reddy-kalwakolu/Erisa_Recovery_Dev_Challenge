@@ -19,7 +19,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 # --- Core Django Settings ---
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# This is now read from your .env file
+# This reads from the .env file
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
