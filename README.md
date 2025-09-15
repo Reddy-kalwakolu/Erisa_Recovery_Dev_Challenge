@@ -117,7 +117,7 @@ Make sure you have Python (version 3.11 or higher) installed on your system.
 
 1.  **Clone the Repository:**
     ```bash
-    git clone <your-repository-url>
+    git clone https://github.com/Reddy-kalwakolu/Erisa_Recovery_Dev_Challenge
     cd <repository-directory>
     ```
 
@@ -182,7 +182,7 @@ Follow these steps to test and verify all required features.
     - **Claims List & Search:** Go to the **Claims** page. Use the top search bar to filter by "United" and see the list update instantly.
     - **HTMX Detail View:** On the Claims list, click the **"View"** button on any claim. A detailed panel will appear below the list without a page reload.
     - **Flag & Annotate:** With a claim's details open, use the **Quick Actions** card to **"Flag for Review"**. Then, add a note in the **Notes** card and save it.
-    - **Data Upload:** Navigate to the **Upload** page. Download a template file, then re-upload it using the "Append" mode. You will be redirected to the dashboard with a success notification.
+    - **Data Upload:** Navigate to the **Upload** page. Download a template file, then re-upload it with your data using the "Append" mode. You will be redirected to the dashboard with a success notification.
 
 ---
 
@@ -193,6 +193,7 @@ The project includes a comprehensive test suite. To run all tests, use the follo
 python manage.py test claims
 ```
 ---
+## Understand the code
 # Chapter 1: User Authentication
 
 Welcome to the first chapter of our tutorial on the `Erisa_Recovery_Dev_Challenge` project! In this chapter, we will explore the concept of **User Authentication**. Think of user authentication as a security guard at the entrance of a building, checking credentials and allowing only authorized personnel to enter. This process ensures that users can securely access their accounts and manage claims while keeping unauthorized users out.
@@ -1219,6 +1220,7 @@ In this chapter, we learned about the **Testing Framework**, its importance, and
 In the next chapter, we will dive into **Deployment**, where we will learn how to deploy our application to a live server. You can read about it here: [Deployment](09_deployment.md).
 
 ---
+
 
 
 
