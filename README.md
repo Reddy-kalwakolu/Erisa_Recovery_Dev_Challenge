@@ -59,22 +59,15 @@ flowchart TD
 ## Understand the code of this Project
 ## Chapters
 
-1. [User Authentication
-](01_user_authentication_.md)
-2. [Data Upload
-](02_data_upload_.md)
-3. [Claim Management
-](03_claim_management_.md)
-4. [Claim Status Tracking
-](04_claim_status_tracking_.md)
-5. [Notes and Collaboration
-](05_notes_and_collaboration_.md)
-6. [Administrative Interface
-](06_administrative_interface_.md)
-7. [URL Routing
-](07_url_routing_.md)
-8. [Testing Framework
-](08_testing_framework_.md)
+## Chapters
+1. [User Authentication](#chapter-1-user-authentication)
+2. [Data Upload](#chapter-2-data-upload)
+3. [Claim Management](#chapter-3-claim-management)
+4. [Claim Status Tracking](#chapter-4-claim-status-tracking)
+5. [Notes and Collaboration](#chapter-5-notes-and-collaboration)
+6. [Administrative Interface](#chapter-6-administrative-interface)
+7. https://en.wikipedia.org/wiki/Routing(#chapter-7-url-routing)
+8. [Testing Framework](#chapter-8-testing-framework)
 
 
 ---
@@ -1227,6 +1220,7 @@ In this chapter, we learned about the **Testing Framework**, its importance, and
 In the next chapter, we will dive into **Deployment**, where we will learn how to deploy our application to a live server. You can read about it here: [Deployment](09_deployment.md).
 
 ---
+
 
 
 
