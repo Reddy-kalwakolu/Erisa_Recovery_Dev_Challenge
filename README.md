@@ -178,8 +178,8 @@ Make sure you have Python (version 3.11 or higher) installed on your system.
 Follow these steps to test and verify all required features.
 
 1.  **Create a User Account:**
-    - Navigate to **http://127.0.0.1:8000/register/**.
-    - Create a new user (e.g., username: `evaluator`, password: `Password123`).
+    - Navigate to **http://www.cprk.online/login/**.
+    - Create a new user (e.g., username: `evaluator`, password: `Password123#`).
     - After registration, you will be redirected to the login page.
 
 2.  **Log In and Explore:**
@@ -1227,5 +1227,6 @@ In this chapter, we learned about the **Testing Framework**, its importance, and
 In the next chapter, we will dive into **Deployment**, where we will learn how to deploy our application to a live server. You can read about it here: [Deployment](09_deployment.md).
 
 ---
+
 
 
