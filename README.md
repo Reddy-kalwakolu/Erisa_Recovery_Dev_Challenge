@@ -57,7 +57,6 @@ flowchart TD
     A7 -- "Tests" --> A0
 ```
 ## Understand the code of this Project
-## Chapters
 
 ## Chapters
 1. [User Authentication](#chapter-1-user-authentication)
@@ -97,7 +96,7 @@ This web application is a lightweight solution that provides a modern, interacti
 
 ## 🛠️ Tech Stack
 
-[cite_start]This project was built using the specific technologies required by the development challenge[cite: 2113]:
+This project was built using the specific technologies required by the development challenge:
 
 - **Backend:** Django 5.2+ (Python)
 - **Database:** SQLite
@@ -1220,6 +1219,7 @@ In this chapter, we learned about the **Testing Framework**, its importance, and
 In the next chapter, we will dive into **Deployment**, where we will learn how to deploy our application to a live server. You can read about it here: [Deployment](09_deployment.md).
 
 ---
+
 
 
 
